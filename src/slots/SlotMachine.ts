@@ -19,7 +19,7 @@ export class SlotMachine {
     private spinButton: PIXI.Sprite | null = null;
     private frameSpine: Spine | null = null;
     private winAnimation: Spine | null = null;
-
+    
     constructor(app: PIXI.Application) {
         this.app = app;
         this.container = new PIXI.Container();
