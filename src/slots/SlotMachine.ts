@@ -122,7 +122,7 @@ export class SlotMachine {
 
     public spin(): void {
         if (runnings[this.reels.length - 1]) return;
-        remainingSymbols = [13, 15, 22, 100];
+        remainingSymbols = [13, 15, 22, 25];
         this.isSpinning = true;
 
         // Play spin sound
@@ -175,16 +175,11 @@ export class SlotMachine {
     private stopSpin(): void {
         this.checkWin();
         this.isSpinning = false;
-
-        if (this.spinButton) {
-            this.spinButton.texture = AssetLoader.getTexture('button_spin.png');
-            this.spinButton.interactive = true;
-        }
     }
 
     private checkWin(): void {
         // Simple win check - just for demonstration
-        const randomWin = Math.random() < 0.3; // 30% chance of winning
+        const randomWin = Math.random() < 0.5; // 50% chance of winning
 
         if (randomWin) {
             sound.play('win');
@@ -192,7 +187,22 @@ export class SlotMachine {
 
             if (this.winAnimation) {
                 // TODO: Play the win animation found in "big-boom-h" spine
+                 this.winAnimation.visible = true;
+                if (this.winAnimation.state.hasAnimation('start')) {
+                    const anim = this.winAnimation.state.setAnimation(0, 'start', false);
 
+                    anim.listener = {
+                        complete: (trackEntry) => {
+                            if(trackEntry.animationEnd) { // if anim is ended.
+                                console.log('Animtion is done.');
+                                if (this.spinButton) {
+                                    this.spinButton.texture = AssetLoader.getTexture('button_spin.png');
+                                    this.spinButton.interactive = true;
+                                }
+                            }
+                        }
+                    };
+                }
             }
         }
     }
