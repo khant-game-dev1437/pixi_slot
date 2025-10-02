@@ -3,13 +3,26 @@ import 'pixi-spine';
 import { Reel } from './Reel';
 import { sound } from '../utils/sound';
 import { AssetLoader } from '../utils/AssetLoader';
-import {Spine} from "pixi-spine";
+import { Spine } from "pixi-spine";
+import gsap from 'gsap';
 
 const REEL_COUNT = 4;
 const SYMBOLS_PER_REEL = 6;
+
 const SYMBOL_SIZE = 150;
 const REEL_HEIGHT = SYMBOL_SIZE;
 const REEL_SPACING = 10;
+let remainingSymbols = [20, 20, 20, 20];
+let runnings = [false, false, false, false];
+
+const SYMBOL_TEXTURES = [
+    'symbol1.png',
+    'symbol2.png',
+    'symbol3.png',
+    'symbol4.png',
+    'symbol5.png',
+    'symbol5.png',
+];
 
 export class SlotMachine {
     public container: PIXI.Container;
@@ -20,6 +33,8 @@ export class SlotMachine {
     private frameSpine: Spine | null = null;
     private winAnimation: Spine | null = null;
     
+    public countIncrement = 0;
+
     constructor(app: PIXI.Application) {
         this.app = app;
         this.container = new PIXI.Container();
@@ -30,7 +45,7 @@ export class SlotMachine {
         this.container.y = this.app.screen.height / 2 - ((REEL_HEIGHT * REEL_COUNT + REEL_SPACING * (REEL_COUNT - 1)) / 2);
 
         this.createBackground();
-        
+
         this.createReels();
 
         this.initSpineAnimations();
@@ -57,6 +72,11 @@ export class SlotMachine {
         // Create each reel
         for (let i = 0; i < REEL_COUNT; i++) {
             const reel = new Reel(SYMBOLS_PER_REEL, SYMBOL_SIZE);
+            if (i % 2 == 0) {
+                reel.reelResult = [0, 1, 2, 3, 4, 5]
+            } else {
+                reel.reelResult = [5, 4, 3, 2, 1, 0]
+            }
             reel.container.y = i * (REEL_HEIGHT + REEL_SPACING);
             this.container.addChild(reel.container);
             this.reels.push(reel);
@@ -64,15 +84,45 @@ export class SlotMachine {
     }
 
     public update(delta: number): void {
-        // Update each reel
-        for (const reel of this.reels) {
-            reel.update(delta);
+
+        for (let i = 0; i < this.reels.length; i++) {
+            const r = this.reels[i];
+           
+            r.previousPosition = r.position;
+            const totalWidth = r.symbols.length * SYMBOL_SIZE;
+
+            for (let j = 0; j < r.symbols.length; j++) {
+                const s = r.symbols[j];
+                const prevX = s.x;
+
+                s.x = ((r.position + j) * SYMBOL_SIZE) % totalWidth;
+                if (s.x < 0) s.x += totalWidth;
+                if (s.x > SYMBOL_SIZE && prevX < SYMBOL_SIZE) {
+                    
+                    remainingSymbols[i]--; 
+                    
+                    if (remainingSymbols[i] > 5) {
+                        const textureName = SYMBOL_TEXTURES[Math.floor(Math.random() * SYMBOL_TEXTURES.length)];
+                        s.texture = PIXI.Texture.from(`assets/images/${textureName}`);
+                    } else {
+                        
+                        let result = r.reelResult;
+                        let resultCount = r.resultCount;
+
+                        console.log('result j ', resultCount)
+                        const textureName = SYMBOL_TEXTURES[result[resultCount]]
+                        s.texture = PIXI.Texture.from(`assets/images/${textureName}`);
+                        r.resultCount++;
+                    }
+                }
+
+            }
         }
     }
 
     public spin(): void {
-        if (this.isSpinning) return;
-
+        if (runnings[this.reels.length - 1]) return;
+        remainingSymbols = [13, 15, 22, 100];
         this.isSpinning = true;
 
         // Play spin sound
@@ -85,16 +135,38 @@ export class SlotMachine {
         }
 
         for (let i = 0; i < this.reels.length; i++) {
-            setTimeout(() => {
-                this.reels[i].startSpin();
-            }, i * 200);
+            const r = this.reels[i];
+            runnings[i] = true;
+            this.nextSymbol(r, i);
         }
+    }
 
-        // Stop all reels after a delay
-        setTimeout(() => {
-            this.stopSpin();
-        }, 500 + (this.reels.length - 1) * 200);
+    nextSymbol(r: any, i: number) {
+        gsap.to(r, {
+            duration: 0.09, // 90ms
+            position: r.position - 1,
+            ease: "none",
+            onComplete: () => {
+                
+                if (remainingSymbols[i] >  1) {
+                    this.nextSymbol(r, i);
+                } else if (remainingSymbols[i] == 1) {
+                    this.snapReel(r, i);
+                }
+            }
+        });
+    }
 
+    snapReel(r: any, i: number) {
+        gsap.to(r, {
+            duration: 0.09, // 400ms
+            position: r.position - 1,
+            ease: 'none',
+            onComplete: () => {
+                runnings[i] = false;
+                console.log("runnings ", runnings[i])
+            }
+        });
     }
 
     private stopSpin(): void {
@@ -128,7 +200,7 @@ export class SlotMachine {
 
             if (this.winAnimation) {
                 // TODO: Play the win animation found in "big-boom-h" spine
-                
+
             }
         }
     }

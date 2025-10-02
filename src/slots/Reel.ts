@@ -14,13 +14,16 @@ const SLOWDOWN_RATE = 0.95; // Rate at which the reel slows down
 
 export class Reel {
     public container: PIXI.Container;
-    private symbols: PIXI.Sprite[];
+    public symbols: any[];
     private symbolSize: number;
     private symbolCount: number;
     private speed: number = 0;
     private isSpinning: boolean = false;
-    private reelResult = [1,0,1,1,1,0]
-    
+    public position: number = 0;
+    public previousPosition: number = 0;
+    public reelResult: any;
+    public resultCount: number = 0;
+
     constructor(symbolCount: number, symbolSize: number) {
         this.container = new PIXI.Container();
         this.symbols = [];
@@ -41,7 +44,7 @@ export class Reel {
         }
     }
 
-    private createRandomSymbol(random: boolean, index: number = -1): PIXI.Sprite {
+    private createRandomSymbol(random: boolean, index: number = -1): any {
         // TODO:Get a random symbol texture
         let textureName;
         if(random) {
@@ -51,6 +54,9 @@ export class Reel {
         }
         
         const texture = PIXI.Texture.from(`assets/images/${textureName}`);
+        if(!random && index != -1) {
+            return texture;
+        }
         // TODO:Create a sprite with the texture
         const sprite = new PIXI.Sprite(texture);
         sprite.width = this.symbolSize;
@@ -58,45 +64,8 @@ export class Reel {
         return sprite;
     }
 
-
-
     public update(delta: number): void {
-        if (!this.isSpinning && this.speed === 0) return;
-
-        // TODO:Move symbols horizontally
-        for (const symbol of this.symbols) {
-            symbol.x -= this.speed * delta; // Spin to left 
-        }
         
-        // infinite loop effect
-        const firstSymbol = this.symbols[0];
-        if (firstSymbol.x + (this.symbolSize / 2) < 0) {
-            
-            const newX = (this.symbols.length - 1) * this.symbolSize;
-            // remove first, reposition to the right
-            this.symbols.shift();
-            this.container.removeChild(firstSymbol);
-            
-            // replace with a new random symbol
-            const newSymbol = this.createRandomSymbol(true);
-            newSymbol.x = newX;
-            newSymbol.y = 0;
-           
-            this.container.addChild(newSymbol);
-            this.symbols.push(newSymbol);
-        }
-
-
-        // If we're stopping, slow down the reel
-        if (!this.isSpinning && this.speed > 0) {
-            this.speed *= SLOWDOWN_RATE;
-            
-            // If speed is very low, stop completely and snap to grid
-            if (this.speed < 0.5) {
-                this.speed = 0;
-                this.snapToGrid();
-            }
-        }
     }
 
     private snapToGrid(): void {
