@@ -136,6 +136,7 @@ export class SlotMachine {
 
         for (let i = 0; i < this.reels.length; i++) {
             const r = this.reels[i];
+            r.resetCounter();
             runnings[i] = true;
             this.nextSymbol(r, i);
         }
@@ -164,29 +165,20 @@ export class SlotMachine {
             ease: 'none',
             onComplete: () => {
                 runnings[i] = false;
-                console.log("runnings ", runnings[i])
+                if(i == REEL_COUNT - 1) { // means finished spinning for all reels
+                    this.stopSpin();
+                }
             }
         });
     }
 
     private stopSpin(): void {
-        for (let i = 0; i < this.reels.length; i++) {
-            setTimeout(() => {
-                this.reels[i].stopSpin();
+        this.checkWin();
+        this.isSpinning = false;
 
-                // If this is the last reel, check for wins and enable spin button
-                if (i === this.reels.length - 1) {
-                    setTimeout(() => {
-                        this.checkWin();
-                        this.isSpinning = false;
-
-                        if (this.spinButton) {
-                            this.spinButton.texture = AssetLoader.getTexture('button_spin.png');
-                            this.spinButton.interactive = true;
-                        }
-                    }, 500);
-                }
-            }, i * 400);
+        if (this.spinButton) {
+            this.spinButton.texture = AssetLoader.getTexture('button_spin.png');
+            this.spinButton.interactive = true;
         }
     }
 

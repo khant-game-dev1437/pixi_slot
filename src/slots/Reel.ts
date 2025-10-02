@@ -33,6 +33,10 @@ export class Reel {
         this.createSymbols();
     }
 
+    public resetCounter() {
+        this.resultCount = 0;
+    }
+    
     private createSymbols(): void {
         // Create symbols for the reel, arranged horizontally
         for (let i = 0; i < this.symbolCount; i++) {
