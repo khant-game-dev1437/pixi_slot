@@ -2,19 +2,25 @@ import * as PIXI from 'pixi.js';
 import { SlotMachine } from '../slots/SlotMachine';
 import { AssetLoader } from '../utils/AssetLoader';
 import { sound } from '../utils/sound';
+import { SoundScreen } from './Sound/SoundScreen';
 
 export class UI {
     public container: PIXI.Container;
     private app: PIXI.Application;
     private slotMachine: SlotMachine;
     private spinButton!: PIXI.Sprite;
+    public soundUI!: SoundScreen;
+    private soundButton!: PIXI.Sprite;
 
     constructor(app: PIXI.Application, slotMachine: SlotMachine) {
         this.app = app;
         this.slotMachine = slotMachine;
+        this.soundUI = new SoundScreen(app);
         this.container = new PIXI.Container();
 
         this.createSpinButton();
+        this.createSoundButton();
+        sound.playBgm('bgm_slot');
     }
 
     private createSpinButton(): void {
@@ -37,14 +43,36 @@ export class UI {
             this.container.addChild(this.spinButton);
 
             this.slotMachine.setSpinButton(this.spinButton);
+           
         } catch (error) {
             console.error('Error creating spin button:', error);
         }
     }
 
-    private onSpinButtonClick(): void {
-        sound.play('Spin button');
+    private createSoundButton(): void {
+        try {
+            this.soundButton = new PIXI.Sprite(AssetLoader.getTexture('yellow.png')); 
+            this.soundButton.anchor.set(0.5);
+            this.soundButton.x = this.app.screen.width / 2 - 150; 
+            this.soundButton.y = this.app.screen.height- 50;
+            this.soundButton.width = 150;
+            this.soundButton.height = 80;
+            
+            this.soundButton.interactive = true;
+            this.soundButton.cursor = 'pointer';
 
+            this.soundButton.on('pointerover', this.onButtonOver.bind(this));
+            this.soundButton.on('pointerout', this.onButtonOut.bind(this));
+            this.soundButton.on('pointerdown', () => this.showSoundUI());
+
+            this.container.addChild(this.soundButton);
+        } catch (error) {
+            console.error('Error creating sound button:', error);
+        }
+    }
+
+    private onSpinButtonClick(): void {
+        sound.playSfx('Spin button');
         this.slotMachine.spin();
     }
 
@@ -54,5 +82,14 @@ export class UI {
 
     private onButtonOut(event: PIXI.FederatedPointerEvent): void {
         (event.currentTarget as PIXI.Sprite).scale.set(1.0);
+    }
+
+    public showSoundUI() {
+        if (!this.container.children.includes(this.soundUI)) {
+            this.container.addChild(this.soundUI);
+        }
+        this.soundUI.position.set(0, 0);
+        this.soundUI.visible = !this.soundUI.visible;
+        console.log('Sound UI toggle ', this.soundUI.visible);
     }
 }

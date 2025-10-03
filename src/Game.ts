@@ -2,11 +2,13 @@ import * as PIXI from 'pixi.js';
 import { SlotMachine } from './slots/SlotMachine';
 import { AssetLoader } from './utils/AssetLoader';
 import { UI } from './ui/UI';
+import { SoundScreen } from './ui/Sound/SoundScreen';
 
 export class Game {
     private app: PIXI.Application;
     private slotMachine!: SlotMachine;
     private ui!: UI;
+    private soundUI!: SoundScreen
     private assetLoader: AssetLoader;
 
     constructor() {

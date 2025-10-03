@@ -6,6 +6,7 @@ import { AssetLoader } from '../utils/AssetLoader';
 import { Spine } from "pixi-spine";
 import gsap from 'gsap';
 
+
 const REEL_COUNT = 4;
 const SYMBOLS_PER_REEL = 6;
 
@@ -33,11 +34,11 @@ export class SlotMachine {
     private frameSpine: Spine | null = null;
     private winAnimation: Spine | null = null;
     
-    public countIncrement = 0;
 
     constructor(app: PIXI.Application) {
         this.app = app;
         this.container = new PIXI.Container();
+        
         this.reels = [];
 
         // Center the slot machine
@@ -49,10 +50,12 @@ export class SlotMachine {
         this.createReels();
 
         this.initSpineAnimations();
+        
     }
 
     private createBackground(): void {
         try {
+            console.log('mmsp')
             const background = new PIXI.Graphics();
             background.beginFill(0x000000, 0.5);
             background.drawRect(
@@ -84,7 +87,6 @@ export class SlotMachine {
     }
 
     public update(delta: number): void {
-
         for (let i = 0; i < this.reels.length; i++) {
             const r = this.reels[i];
            
@@ -126,7 +128,7 @@ export class SlotMachine {
         this.isSpinning = true;
 
         // Play spin sound
-        sound.play('Reel spin');
+        sound.playSfx('Reel spin');
 
         // Disable spin button
         if (this.spinButton) {
@@ -166,6 +168,7 @@ export class SlotMachine {
             onComplete: () => {
                 runnings[i] = false;
                 if(i == REEL_COUNT - 1) { // means finished spinning for all reels
+                    sound.stopSfx('Reel spin')
                     this.stopSpin();
                 }
             }
@@ -182,7 +185,7 @@ export class SlotMachine {
         const randomWin = Math.random() < 0.5; // 50% chance of winning
 
         if (randomWin) {
-            sound.play('win');
+            sound.playSfx('win');
             console.log('Winner!');
 
             if (this.winAnimation) {
@@ -203,6 +206,11 @@ export class SlotMachine {
                         }
                     };
                 }
+            }
+        } else {
+            if (this.spinButton) {
+                this.spinButton.texture = AssetLoader.getTexture('button_spin.png');
+                this.spinButton.interactive = true;
             }
         }
     }
@@ -242,4 +250,6 @@ export class SlotMachine {
             console.error('Error initializing spine animations:', error);
         }
     }
+
+    
 }

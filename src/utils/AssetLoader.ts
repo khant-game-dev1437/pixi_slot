@@ -16,6 +16,7 @@ const IMAGES = [
     'background.png',
     'button_spin.png',
     'button_spin_disabled.png',
+    'yellow.png',
 ];
 
 const SPINES = [
@@ -29,6 +30,10 @@ const SOUNDS = [
     'win.webm',
     'Spin button.webm',
 ];
+
+const BFX_SOUND = [
+ 'bgm_slot.mp3'
+]
 
 const textureCache: Record<string, PIXI.Texture> = {};
 const spineCache: Record<string, any> = {};
@@ -79,8 +84,13 @@ export class AssetLoader {
     private async loadSounds(): Promise<void> {
         try {
             SOUNDS.forEach(soundFile => {
-                sound.add(soundFile.split('.')[0], SOUNDS_PATH + soundFile);
+                sound.addSfx(soundFile.split('.')[0], SOUNDS_PATH + soundFile);
             });
+            
+            BFX_SOUND.forEach(soundFile => {
+                sound.addBgm(soundFile.split('.')[0], SOUNDS_PATH + soundFile);
+            });
+
         } catch (error) {
             console.error('Error loading sounds:', error);
             throw error;
