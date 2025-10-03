@@ -61,6 +61,20 @@ export class UI {
             this.soundButton.interactive = true;
             this.soundButton.cursor = 'pointer';
 
+            const style = new PIXI.TextStyle({
+                fontFamily: "Arial",
+                fontSize: 22,
+                fill: 0x000000,
+                
+                align: "center",
+            });
+
+            const title = new PIXI.Text("Sound", style);
+            title.anchor.set(0.5);
+            title.x = this.soundButton.width / 2 - 75;
+            title.y = this.soundButton.height / 2 - 50;
+            this.soundButton.addChild(title);
+
             this.soundButton.on('pointerover', this.onButtonOver.bind(this));
             this.soundButton.on('pointerout', this.onButtonOut.bind(this));
             this.soundButton.on('pointerdown', () => this.showSoundUI());
