@@ -27,9 +27,8 @@ const SYMBOL_TEXTURES = [
 
 export class SlotMachine {
     public container: PIXI.Container;
-    private reels: Reel[];
+    private reels: Reel[] = [];
     private app: PIXI.Application;
-    private isSpinning: boolean = false;
     private spinButton: PIXI.Sprite | null = null;
     private frameSpine: Spine | null = null;
     private winAnimation: Spine | null = null;
@@ -39,8 +38,6 @@ export class SlotMachine {
         this.app = app;
         this.container = new PIXI.Container();
         
-        this.reels = [];
-
         // Center the slot machine
         this.container.x = this.app.screen.width / 2 - ((SYMBOL_SIZE * SYMBOLS_PER_REEL) / 2);
         this.container.y = this.app.screen.height / 2 - ((REEL_HEIGHT * REEL_COUNT + REEL_SPACING * (REEL_COUNT - 1)) / 2);
@@ -55,7 +52,6 @@ export class SlotMachine {
 
     private createBackground(): void {
         try {
-            console.log('mmsp')
             const background = new PIXI.Graphics();
             background.beginFill(0x000000, 0.5);
             background.drawRect(
@@ -75,7 +71,7 @@ export class SlotMachine {
         // Create each reel
         for (let i = 0; i < REEL_COUNT; i++) {
             const reel = new Reel(SYMBOLS_PER_REEL, SYMBOL_SIZE);
-            if (i % 2 == 0) {
+            if (i % 2 == 0) { // bind server result in here.
                 reel.reelResult = [0, 1, 2, 3, 4, 5]
             } else {
                 reel.reelResult = [5, 4, 3, 2, 1, 0]
@@ -89,8 +85,7 @@ export class SlotMachine {
     public update(delta: number): void {
         for (let i = 0; i < this.reels.length; i++) {
             const r = this.reels[i];
-           
-            r.previousPosition = r.position;
+          
             const totalWidth = r.symbols.length * SYMBOL_SIZE;
 
             for (let j = 0; j < r.symbols.length; j++) {
@@ -108,11 +103,11 @@ export class SlotMachine {
                         s.texture = PIXI.Texture.from(`assets/images/${textureName}`);
                     } else {
                         
-                        let result = r.reelResult;
-                        let resultCount = r.resultCount;
+                        const result: number[] = r.reelResult;
+                        let resultCount: number = r.resultCount;
 
                         console.log('result j ', resultCount)
-                        const textureName = SYMBOL_TEXTURES[result[resultCount]]
+                        const textureName : string = SYMBOL_TEXTURES[result[resultCount]]
                         s.texture = PIXI.Texture.from(`assets/images/${textureName}`);
                         r.resultCount++;
                     }
@@ -125,7 +120,6 @@ export class SlotMachine {
     public spin(): void {
         if (runnings[this.reels.length - 1]) return;
         remainingSymbols = [13, 15, 22, 25];
-        this.isSpinning = true;
 
         // Play spin sound
         sound.playSfx('Reel spin');
@@ -177,7 +171,6 @@ export class SlotMachine {
 
     private stopSpin(): void {
         this.checkWin();
-        this.isSpinning = false;
     }
 
     private checkWin(): void {

@@ -15,8 +15,8 @@ export class SoundScreen extends Container {
     private sfxHandle!: Graphics;
     private sfxValue: number = 0;
 
-    private min = 0;
-    private max = 100;
+    private min: number = 0;
+    private max: number = 100;
     private sliderWidth: number = 320;
     private draggingHandle: Graphics | null = null;
 
@@ -81,7 +81,7 @@ export class SoundScreen extends Container {
         this.bfxHandle = this.createHandle(this.bfxSlider);
         soundContainer.addChild(this.bfxSlider);
 
-        let bfxVol = parseFloat(localStorage.getItem('game_bgm_volume') || "1");
+        let bfxVol: number = parseFloat(localStorage.getItem('game_bgm_volume') || "1");
         this.bfxValue = Math.round(bfxVol * 100);
         this.bfxHandle.x = bfxVol * this.sliderWidth;
 
@@ -94,7 +94,7 @@ export class SoundScreen extends Container {
         soundContainer.addChild(this.sfxSlider);
 
         // First time set slider handle to let user see real val
-         let sfxVol = parseFloat(localStorage.getItem('game_sfx_volume') || "1");
+        let sfxVol: number = parseFloat(localStorage.getItem('game_sfx_volume') || "1");
         this.sfxValue = Math.round(sfxVol * 100);
         this.sfxHandle.x = sfxVol * this.sliderWidth;
 
@@ -124,8 +124,8 @@ export class SoundScreen extends Container {
         handle.cursor = "pointer";
 
         handle.on("pointerdown", () => this.onDragStart(handle, slider))
-              .on("pointerup", this.onDragEnd)
-              .on("pointerupoutside", this.onDragEnd);
+            .on("pointerup", this.onDragEnd)
+            .on("pointerupoutside", this.onDragEnd);
 
         slider.addChild(handle);
         return handle;
@@ -149,8 +149,8 @@ export class SoundScreen extends Container {
     onDrag = (e: any) => {
         if (!this.draggingHandle) return;
 
-        const slider = this.draggingHandle.parent as Graphics;
-        const localX = slider.toLocal(e.global).x;
+        const slider: Graphics = this.draggingHandle.parent as Graphics;
+        const localX: number = slider.toLocal(e.global).x;
 
         // clamp handle not ot out of the slider
         this.draggingHandle.x = Math.max(0, Math.min(localX, this.sliderWidth));
@@ -166,7 +166,7 @@ export class SoundScreen extends Container {
             console.log("BFX Value:", this.bfxValue);
         } else if (this.draggingHandle === this.sfxHandle) {
             this.sfxValue = Math.round(value);
-            
+
             sound.setVolumeSfx(this.sfxValue / 100) // set sfx vol.
             console.log("SFX Value:", this.sfxValue);
         }

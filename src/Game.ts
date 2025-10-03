@@ -8,7 +8,6 @@ export class Game {
     private app: PIXI.Application;
     private slotMachine!: SlotMachine;
     private ui!: UI;
-    private soundUI!: SoundScreen
     private assetLoader: AssetLoader;
 
     constructor() {

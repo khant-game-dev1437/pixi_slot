@@ -1,5 +1,4 @@
 import * as PIXI from 'pixi.js';
-import { AssetLoader } from '../utils/AssetLoader';
 
 const SYMBOL_TEXTURES = [
     'symbol1.png',
@@ -9,18 +8,12 @@ const SYMBOL_TEXTURES = [
     'symbol5.png',
 ];
 
-const SPIN_SPEED = 50; // Pixels per frame
-const SLOWDOWN_RATE = 0.95; // Rate at which the reel slows down
-
 export class Reel {
     public container: PIXI.Container;
     public symbols: any[];
     private symbolSize: number;
     private symbolCount: number;
-    private speed: number = 0;
-    private isSpinning: boolean = false;
     public position: number = 0;
-    public previousPosition: number = 0;
     public reelResult: any;
     public resultCount: number = 0;
 
@@ -66,27 +59,5 @@ export class Reel {
         sprite.width = this.symbolSize;
         sprite.height = this.symbolSize;
         return sprite;
-    }
-
-    public update(delta: number): void {
-        
-    }
-
-    private snapToGrid(): void {
-        // TODO: Snap symbols to horizontal grid positions
-        for (let i = 0; i < this.symbols.length; i++) {
-            const targetX = i * this.symbolSize;
-            this.symbols[i].x = targetX;
-        }
-    }
-
-    public startSpin(): void {
-        this.isSpinning = true;
-        this.speed = SPIN_SPEED;
-    }
-
-    public stopSpin(): void {
-        this.isSpinning = false;
-        // The reel will gradually slow down in the update method
     }
 }

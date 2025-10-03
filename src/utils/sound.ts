@@ -1,5 +1,5 @@
 // TODO: Implement sound player using the "howler" package
-import { Howl, Howler } from "howler";
+import { Howl } from "howler";
 
 type SoundMap = {
     [alias: string]: Howl;
@@ -9,11 +9,11 @@ const sounds: SoundMap = {}; // sfx
 const bgm: SoundMap = {}; // bfx
 
 // save in localStorage
-const SFX_VOLUME_KEY = "game_sfx_volume";
-const BGM_VOLUME_KEY = "game_bgm_volume";
+const SFX_VOLUME_KEY: string = "game_sfx_volume";
+const BGM_VOLUME_KEY: string = "game_bgm_volume";
 
-const savedSfxVolume = parseFloat(localStorage.getItem(SFX_VOLUME_KEY) || "1");
-const savedBgmVolume = parseFloat(localStorage.getItem(BGM_VOLUME_KEY) || "1");
+const savedSfxVolume: number = parseFloat(localStorage.getItem(SFX_VOLUME_KEY) || "1");
+const savedBgmVolume: number = parseFloat(localStorage.getItem(BGM_VOLUME_KEY) || "1");
 
 export const sound = {
 
