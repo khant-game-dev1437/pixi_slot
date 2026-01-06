@@ -29,9 +29,10 @@ export class Game {
         this.init = this.init.bind(this);
         this.resize = this.resize.bind(this);
 
-        window.addEventListener('resize', this.resize);
+        window.addEventListener('resize', ()=> {
+            setTimeout(this.resize, 100);
+        });
 
-        this.resize();
     }
 
     public async init(): Promise<void> {
@@ -43,6 +44,8 @@ export class Game {
 
             this.ui = new UI(this.app, this.slotMachine);
             this.app.stage.addChild(this.ui.container);
+
+            this.resize(); // Call this after all UI creation finished. If not, it wont be responsive
 
             this.app.ticker.add(this.update.bind(this));
 
@@ -64,7 +67,7 @@ export class Game {
         const gameContainer = document.getElementById('game-container');
         if (!gameContainer) return;
 
-        const w = gameContainer.clientWidth;
+        const w = gameContainer.clientWidth;  
         const h = gameContainer.clientHeight;
 
         // Calculate scale to fit the container while maintaining aspect ratio

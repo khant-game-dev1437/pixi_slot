@@ -1,5 +1,6 @@
 // TODO: Implement sound player using the "howler" package
 import { Howl } from "howler";
+import { Music } from "../slots/SlotMachine";
 
 type SoundMap = {
     [alias: string]: Howl;
@@ -14,6 +15,8 @@ const BGM_VOLUME_KEY: string = "game_bgm_volume";
 
 const savedSfxVolume: number = parseFloat(localStorage.getItem(SFX_VOLUME_KEY) || "1");
 const savedBgmVolume: number = parseFloat(localStorage.getItem(BGM_VOLUME_KEY) || "1");
+
+
 
 export const sound = {
 
@@ -43,10 +46,17 @@ export const sound = {
         console.log(`Playing sound: ${alias}`);
     },
 
-    stopSfx: (alias: string): void => {
-        const sfx = sounds[alias];
-        if (!sfx) return;
-        sfx.stop();
+    
+
+    stopSfx: (alias: string, stopSong: Music): void => {
+        if(stopSong == Music.backgroundMucic) {
+            
+        } else if (stopSong == Music.sfxMusic) {
+            const sfx = sounds[alias];
+            if (!sfx) return;
+            sfx.stop();
+        }
+        
     },
 
     setVolumeSfx: (volume: number): void => {

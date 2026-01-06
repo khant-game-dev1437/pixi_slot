@@ -13,8 +13,12 @@ const SYMBOLS_PER_REEL = 6;
 const SYMBOL_SIZE = 150;
 const REEL_HEIGHT = SYMBOL_SIZE;
 const REEL_SPACING = 10;
-let remainingSymbols = [20, 20, 20, 20];
+let remainingSymbols = [20, 20, 20, 40];
 let runnings = [false, false, false, false];
+export enum Music{
+    backgroundMucic,
+    sfxMusic
+}
 
 const SYMBOL_TEXTURES = [
     'symbol1.png',
@@ -72,9 +76,9 @@ export class SlotMachine {
         for (let i = 0; i < REEL_COUNT; i++) {
             const reel = new Reel(SYMBOLS_PER_REEL, SYMBOL_SIZE);
             if (i % 2 == 0) { // bind server result in here.
-                reel.reelResult = [0, 1, 2, 3, 4, 5]
+                reel.reelResult = [0, 0, 0, 0, 0, 0]
             } else {
-                reel.reelResult = [5, 4, 3, 2, 1, 0]
+                reel.reelResult = [0, 1, 2, 3, 4, 5]
             }
             reel.container.y = i * (REEL_HEIGHT + REEL_SPACING);
             this.container.addChild(reel.container);
@@ -119,7 +123,7 @@ export class SlotMachine {
 
     public spin(): void {
         if (runnings[this.reels.length - 1]) return;
-        remainingSymbols = [13, 15, 22, 25];
+        remainingSymbols = [13, 15, 22, 30];
 
         // Play spin sound
         sound.playSfx('Reel spin');
@@ -162,7 +166,7 @@ export class SlotMachine {
             onComplete: () => {
                 runnings[i] = false;
                 if(i == REEL_COUNT - 1) { // means finished spinning for all reels
-                    sound.stopSfx('Reel spin')
+                    sound.stopSfx('Reel spin', Music.sfxMusic)
                     this.stopSpin();
                 }
             }
@@ -182,7 +186,7 @@ export class SlotMachine {
             console.log('Winner!');
 
             if (this.winAnimation) {
-                // TODO: Play the win animation found in "big-boom-h" spine
+                
                  this.winAnimation.visible = true;
                 if (this.winAnimation.state.hasAnimation('start')) {
                     const anim = this.winAnimation.state.setAnimation(0, 'start', false);
