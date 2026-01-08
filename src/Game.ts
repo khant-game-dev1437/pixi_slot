@@ -22,6 +22,10 @@ export class Game {
         const gameContainer = document.getElementById('game-container');
         if (gameContainer) {
             gameContainer.appendChild(this.app.view as HTMLCanvasElement);
+
+            gameContainer.addEventListener('click', () => {
+                this.toggleFullscreen(gameContainer);
+            },);
         }
 
         this.assetLoader = new AssetLoader();
@@ -33,6 +37,14 @@ export class Game {
             setTimeout(this.resize, 100);
         });
 
+    }
+
+    private toggleFullscreen(element: HTMLElement): void {
+        if (!document.fullscreenElement) {
+            element.requestFullscreen().catch((err) => {
+                console.error(`Error attempting to enable fullscreen: ${err.message}`);
+            });
+        }
     }
 
     public async init(): Promise<void> {
