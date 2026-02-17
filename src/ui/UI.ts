@@ -32,7 +32,7 @@ export class UI {
             this.spinButton.y = this.app.screen.height - 50;
             this.spinButton.width = 150;
             this.spinButton.height = 80;
-
+            console.log('spinBut', this.spinButton.y)
             this.spinButton.interactive = true;
             this.spinButton.cursor = 'pointer';
 

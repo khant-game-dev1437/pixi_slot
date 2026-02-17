@@ -10,10 +10,13 @@ export class Game {
     private ui!: UI;
     private assetLoader: AssetLoader;
 
+    private static readonly DESIGN_WIDTH = 1280;
+    private static readonly DESIGN_HEIGHT = 800;
+
     constructor() {
         this.app = new PIXI.Application({
-            width: 1280,
-            height: 800,
+            width: Game.DESIGN_WIDTH,
+            height: Game.DESIGN_HEIGHT,
             backgroundColor: 0x1099bb,
             resolution: window.devicePixelRatio || 1,
             autoDensity: true,
@@ -25,7 +28,7 @@ export class Game {
 
             gameContainer.addEventListener('click', () => {
                 this.toggleFullscreen(gameContainer);
-            },);
+            });
         }
 
         this.assetLoader = new AssetLoader();
@@ -33,10 +36,15 @@ export class Game {
         this.init = this.init.bind(this);
         this.resize = this.resize.bind(this);
 
-        window.addEventListener('resize', ()=> {
-            setTimeout(this.resize, 100);
+        window.addEventListener('resize', () => {
+            this.resize();
         });
 
+        window.addEventListener('orientationchange', () => {
+            setTimeout(this.resize, 200);
+        });
+
+        this.resize();
     }
 
     private toggleFullscreen(element: HTMLElement): void {
@@ -74,22 +82,24 @@ export class Game {
     }
 
     private resize(): void {
-        if (!this.app || !this.app.renderer) return;
+        if (!this.app) return;
 
         const gameContainer = document.getElementById('game-container');
         if (!gameContainer) return;
 
-        const w = gameContainer.clientWidth;  
-        const h = gameContainer.clientHeight;
+        const w = gameContainer.clientWidth || window.innerWidth;
+        const h = gameContainer.clientHeight || window.innerHeight;
 
-        // Calculate scale to fit the container while maintaining aspect ratio
-        const scale = Math.min(w / 1280, h / 800);
+        // Scale the canvas via CSS to fit viewport while maintaining aspect ratio
+        const scale = Math.min(w / Game.DESIGN_WIDTH, h / Game.DESIGN_HEIGHT);
+        const scaledW = Math.floor(Game.DESIGN_WIDTH * scale);
+        const scaledH = Math.floor(Game.DESIGN_HEIGHT * scale);
 
-        this.app.stage.scale.set(scale);
-
-        // Center the stage
-        this.app.renderer.resize(w, h);
-        this.app.stage.position.set(w / 2, h / 2);
-        this.app.stage.pivot.set(1280 / 2, 800 / 2);
+        const canvas = this.app.view as HTMLCanvasElement;
+        canvas.style.width = `${scaledW}px`;
+        canvas.style.height = `${scaledH}px`;
+        canvas.style.position = 'absolute';
+        canvas.style.left = `${Math.floor((w - scaledW) / 2)}px`;
+        canvas.style.top = `${Math.floor((h - scaledH) / 2)}px`;
     }
 }
