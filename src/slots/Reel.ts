@@ -34,8 +34,22 @@ export class Reel {
         // Create symbols for the reel, arranged horizontally
         for (let i = 0; i < this.symbolCount; i++) {
             const symbol = this.createRandomSymbol(true);
-            symbol.x = i * this.symbolSize; // arrange horizontally
-            symbol.y = 0;
+            symbol.x = 0;
+            symbol.y = i * this.symbolSize;
+
+            const label = new PIXI.Text(String(i), new PIXI.TextStyle({
+                fontFamily: 'Arial',
+                fontSize: 32,
+                fill: 0xffffff,
+                fontWeight: 'bold',
+                dropShadow: true,
+                dropShadowDistance: 2,
+            }));
+            label.anchor.set(0.5);
+            label.x = this.symbolSize / 2;
+            label.y = this.symbolSize / 2;
+            symbol.addChild(label);
+
             this.container.addChild(symbol);
             this.symbols.push(symbol);
         }

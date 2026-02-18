@@ -10,8 +10,8 @@ export class Game {
     private ui!: UI;
     private assetLoader: AssetLoader;
 
-    private static readonly DESIGN_WIDTH = 1280;
-    private static readonly DESIGN_HEIGHT = 800;
+    private static readonly DESIGN_WIDTH = 800;
+    private static readonly DESIGN_HEIGHT = 1280;
 
     constructor() {
         this.app = new PIXI.Application({
@@ -48,11 +48,11 @@ export class Game {
     }
 
     private toggleFullscreen(element: HTMLElement): void {
-        if (!document.fullscreenElement) {
-            element.requestFullscreen().catch((err) => {
-                console.error(`Error attempting to enable fullscreen: ${err.message}`);
-            });
-        }
+        // if (!document.fullscreenElement) {
+        //     element.requestFullscreen().catch((err) => {
+        //         console.error(`Error attempting to enable fullscreen: ${err.message}`);
+        //     });
+        // }
     }
 
     public async init(): Promise<void> {

@@ -29,7 +29,7 @@ export class UI {
 
             this.spinButton.anchor.set(0.5);
             this.spinButton.x = this.app.screen.width / 2;
-            this.spinButton.y = this.app.screen.height - 50;
+            this.spinButton.y = this.app.screen.height - 130;
             this.spinButton.width = 150;
             this.spinButton.height = 80;
             console.log('spinBut', this.spinButton.y)
@@ -54,7 +54,7 @@ export class UI {
             this.soundButton = new PIXI.Sprite(AssetLoader.getTexture('yellow.png')); 
             this.soundButton.anchor.set(0.5);
             this.soundButton.x = this.app.screen.width / 2 - 150; 
-            this.soundButton.y = this.app.screen.height- 50;
+            this.soundButton.y = this.app.screen.height - 130;
             this.soundButton.width = 150;
             this.soundButton.height = 80;
             

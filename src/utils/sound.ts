@@ -31,6 +31,12 @@ export const sound = {
             src: [url],
             preload: true,
             volume: savedSfxVolume,
+            onloaderror: (_id: number, err: unknown) => {
+                console.error(`SFX load error "${alias}":`, err);
+            },
+            onplayerror: (_id: number, err: unknown) => {
+                console.error(`SFX play error "${alias}":`, err);
+            },
         });
 
         console.log(`Sound added: ${alias} from ${url}`);
@@ -85,6 +91,12 @@ export const sound = {
             loop: true,
             preload: true,
             volume: savedBgmVolume,
+            onloaderror: (_id: number, err: unknown) => {
+                console.error(`BGM load error "${alias}":`, err);
+            },
+            onplayerror: (_id: number, err: unknown) => {
+                console.error(`BGM play error "${alias}":`, err);
+            },
         });
 
         console.log(`BGM added: ${alias} from ${url}`);
@@ -92,7 +104,6 @@ export const sound = {
 
     playBgm: (alias: string): void => {
         const track = bgm[alias];
-        track.loop
         if (!track) {
             console.warn(`BGM alias "${alias}" not found.`);
             return;

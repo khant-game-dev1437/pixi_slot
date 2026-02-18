@@ -7,10 +7,10 @@ import { Spine } from "pixi-spine";
 import gsap from 'gsap';
 
 
-const REEL_COUNT = 4;
-const SYMBOLS_PER_REEL = 6;
+const REEL_COUNT = 2;
+const SYMBOLS_PER_REEL = 5;
 
-const SYMBOL_SIZE = 150;
+const SYMBOL_SIZE = 100;
 const REEL_HEIGHT = SYMBOL_SIZE;
 const REEL_SPACING = 10;
 let remainingSymbols = [20, 20, 20, 40];
@@ -25,7 +25,6 @@ const SYMBOL_TEXTURES = [
     'symbol2.png',
     'symbol3.png',
     'symbol4.png',
-    'symbol5.png',
     'symbol5.png',
 ];
 
@@ -60,9 +59,10 @@ export class SlotMachine {
             background.beginFill(0x000000, 0.5);
             background.drawRect(
                 -20,
-                -20,
-                SYMBOL_SIZE * SYMBOLS_PER_REEL + 40, // Width now based on symbols per reel
-                REEL_HEIGHT * REEL_COUNT + REEL_SPACING * (REEL_COUNT - 1) + 40 // Height based on reel count
+                -200,
+                REEL_HEIGHT * REEL_COUNT + REEL_SPACING * (REEL_COUNT - 1) + 40,
+                SYMBOL_SIZE * SYMBOLS_PER_REEL
+                
             );
             background.endFill();
             this.container.addChild(background);
@@ -72,15 +72,15 @@ export class SlotMachine {
     }
 
     private createReels(): void {
-        // Create each reel
         for (let i = 0; i < REEL_COUNT; i++) {
             const reel = new Reel(SYMBOLS_PER_REEL, SYMBOL_SIZE);
-            if (i % 2 == 0) { // bind server result in here.
-                reel.reelResult = [0, 0, 0, 0, 0, 0]
+            if (i % 2 == 0) {
+                reel.reelResult = [0, 0, 0, 0, 0, 0];
             } else {
-                reel.reelResult = [0, 1, 2, 3, 4, 5]
+                reel.reelResult = [0, 1, 2, 3, 4];
             }
-            reel.container.y = i * (REEL_HEIGHT + REEL_SPACING);
+            reel.container.y = -200;
+            reel.container.x = i * SYMBOL_SIZE;
             this.container.addChild(reel.container);
             this.reels.push(reel);
         }
@@ -89,34 +89,34 @@ export class SlotMachine {
     public update(delta: number): void {
         for (let i = 0; i < this.reels.length; i++) {
             const r = this.reels[i];
-          
-            const totalWidth = r.symbols.length * SYMBOL_SIZE;
+
+            const totalHeight = r.symbols.length * SYMBOL_SIZE;
 
             for (let j = 0; j < r.symbols.length; j++) {
                 const s = r.symbols[j];
-                const prevX = s.x;
+                const prevY = s.y;
 
-                s.x = ((r.position + j) * SYMBOL_SIZE) % totalWidth;
-                if (s.x < 0) s.x += totalWidth;
-                if (s.x > SYMBOL_SIZE && prevX < SYMBOL_SIZE) {
-                    
-                    remainingSymbols[i]--; 
-                    
+                s.y = ((r.position + j) * SYMBOL_SIZE) % totalHeight;
+                if (s.y < 0) s.y += totalHeight;
+                if (prevY > SYMBOL_SIZE && s.y < SYMBOL_SIZE) {
+
+                    remainingSymbols[i]--;
+
                     if (remainingSymbols[i] > 5) {
                         const textureName = SYMBOL_TEXTURES[Math.floor(Math.random() * SYMBOL_TEXTURES.length)];
                         s.texture = PIXI.Texture.from(`assets/images/${textureName}`);
                     } else {
-                        
                         const result: number[] = r.reelResult;
                         let resultCount: number = r.resultCount;
 
-                        console.log('result j ', resultCount)
-                        const textureName : string = SYMBOL_TEXTURES[result[resultCount]]
-                        s.texture = PIXI.Texture.from(`assets/images/${textureName}`);
-                        r.resultCount++;
+                        if (resultCount < result.length) {
+                            console.log('result j ', resultCount);
+                            const textureName: string = SYMBOL_TEXTURES[result[result.length - 1 - resultCount]];
+                            s.texture = PIXI.Texture.from(`assets/images/${textureName}`);
+                            r.resultCount++;
+                        }
                     }
                 }
-
             }
         }
     }
@@ -124,7 +124,7 @@ export class SlotMachine {
     public spin(): void {
         if (runnings[this.reels.length - 1]) return;
         remainingSymbols = [13, 15, 22, 30];
-
+        
         // Play spin sound
         sound.playSfx('Reel spin');
 
@@ -137,6 +137,8 @@ export class SlotMachine {
         for (let i = 0; i < this.reels.length; i++) {
             const r = this.reels[i];
             r.resetCounter();
+            r.reelResult = [1,2,1,2,1];
+            
             runnings[i] = true;
             this.nextSymbol(r, i);
         }
@@ -145,11 +147,11 @@ export class SlotMachine {
     nextSymbol(r: any, i: number) {
         gsap.to(r, {
             duration: 0.09, // 90ms
-            position: r.position - 1,
+            position: r.position + 1,
             ease: "none",
             onComplete: () => {
                 
-                if (remainingSymbols[i] >  1) {
+                if (remainingSymbols[i] > 1) {
                     this.nextSymbol(r, i);
                 } else if (remainingSymbols[i] == 1) {
                     this.snapReel(r, i);
@@ -160,13 +162,13 @@ export class SlotMachine {
 
     snapReel(r: any, i: number) {
         gsap.to(r, {
-            duration: 0.09, // 400ms
+            duration: 0.09,
             position: r.position - 1,
             ease: 'none',
             onComplete: () => {
                 runnings[i] = false;
-                if(i == REEL_COUNT - 1) { // means finished spinning for all reels
-                    sound.stopSfx('Reel spin', Music.sfxMusic)
+                if (i == REEL_COUNT - 1) {
+                    sound.stopSfx('Reel spin', Music.sfxMusic);
                     this.stopSpin();
                 }
             }
@@ -224,6 +226,9 @@ export class SlotMachine {
 
                 this.frameSpine.y = (REEL_HEIGHT * REEL_COUNT + REEL_SPACING * (REEL_COUNT - 1)) / 2;
                 this.frameSpine.x = (SYMBOL_SIZE * SYMBOLS_PER_REEL) / 2;
+
+                this.frameSpine.width = (SYMBOL_SIZE + REEL_SPACING) * SYMBOLS_PER_REEL + SYMBOL_SIZE;
+                this.frameSpine.height = (SYMBOL_SIZE + REEL_SPACING) * REEL_COUNT + SYMBOL_SIZE;
 
                 if (this.frameSpine.state.hasAnimation('idle')) {
                     this.frameSpine.state.setAnimation(0, 'idle', true);

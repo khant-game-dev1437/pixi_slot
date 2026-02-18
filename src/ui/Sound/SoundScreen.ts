@@ -17,7 +17,7 @@ export class SoundScreen extends Container {
 
     private min: number = 0;
     private max: number = 100;
-    private sliderWidth: number = 320;
+    private sliderWidth: number = 350;
     private draggingHandle: Graphics | null = null;
 
     constructor(app: PIXI.Application) {
@@ -35,18 +35,30 @@ export class SoundScreen extends Container {
         const soundContainer = new Container();
         this.addChild(soundContainer);
 
-        // Overlay
+        const panelW = 480;
+        const panelH = 280;
+        const panelX = (this.app.screen.width - panelW) / 2;
+        const panelY = (this.app.screen.height - panelH) / 2;
+
+        // Dim background
         const overlay = new Graphics();
-        overlay.beginFill(0x008000, 0.9);
-        overlay.drawRect(0, 0, this.app.screen.width, this.app.screen.height - 100);
+        overlay.beginFill(0x000000, 0.5);
+        overlay.drawRect(0, 0, this.app.screen.width, this.app.screen.height);
         overlay.endFill();
         overlay.eventMode = "static";
         soundContainer.addChild(overlay);
 
+        // Compact panel
+        const panel = new Graphics();
+        panel.beginFill(0x008000, 0.95);
+        panel.drawRoundedRect(panelX, panelY, panelW, panelH, 12);
+        panel.endFill();
+        soundContainer.addChild(panel);
+
         // Style
         const style = new PIXI.TextStyle({
             fontFamily: "Arial",
-            fontSize: 48,
+            fontSize: 28,
             fill: 0xffffff,
             fontWeight: "bold",
             align: "center",
@@ -56,28 +68,25 @@ export class SoundScreen extends Container {
         const title = new PIXI.Text("Sound Setting", style);
         title.anchor.set(0.5);
         title.x = this.app.screen.width / 2;
-        title.y = 100;
+        title.y = panelY + 38;
         soundContainer.addChild(title);
 
-        // BFX Label
-        const bfxTxt = new PIXI.Text("BFX", style);
-        bfxTxt.anchor.set(0.5);
-        bfxTxt.x = this.app.screen.width / 2 - 400;
-        bfxTxt.y = this.app.screen.height / 2 - 200;
+        // BGM Label
+        const bfxTxt = new PIXI.Text("BGM", style);
+        bfxTxt.anchor.set(0, 0.5);
+        bfxTxt.x = panelX + 20;
+        bfxTxt.y = panelY + 110;
         soundContainer.addChild(bfxTxt);
 
         // SFX Label
         const sfxTxt = new PIXI.Text("SFX", style);
-        sfxTxt.anchor.set(0.5);
-        sfxTxt.x = this.app.screen.width / 2 - 400;
-        sfxTxt.y = this.app.screen.height / 2 + 100;
+        sfxTxt.anchor.set(0, 0.5);
+        sfxTxt.x = panelX + 20;
+        sfxTxt.y = panelY + 190;
         soundContainer.addChild(sfxTxt);
 
-        // BFX Slider
-        this.bfxSlider = this.createSlider(
-            this.app.screen.width / 2 - 300,
-            this.app.screen.height / 2 - 200
-        );
+        // BGM Slider
+        this.bfxSlider = this.createSlider(panelX + 90, panelY + 110);
         soundContainer.addChild(this.bfxSlider);
         this.bfxHandle = this.createHandle(this.bfxSlider);
 
@@ -86,10 +95,7 @@ export class SoundScreen extends Container {
         this.bfxHandle.x = bfxVol * this.sliderWidth;
 
         // SFX Slider
-        this.sfxSlider = this.createSlider(
-            this.app.screen.width / 2 - 300,
-            this.app.screen.height / 2 + 100
-        );
+        this.sfxSlider = this.createSlider(panelX + 90, panelY + 190);
         soundContainer.addChild(this.sfxSlider);
         this.sfxHandle = this.createHandle(this.sfxSlider);
 
