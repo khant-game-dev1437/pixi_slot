@@ -78,8 +78,8 @@ export class SoundScreen extends Container {
             this.app.screen.width / 2 - 300,
             this.app.screen.height / 2 - 200
         );
-        this.bfxHandle = this.createHandle(this.bfxSlider);
         soundContainer.addChild(this.bfxSlider);
+        this.bfxHandle = this.createHandle(this.bfxSlider);
 
         let bfxVol: number = parseFloat(localStorage.getItem('game_bgm_volume') || "1");
         this.bfxValue = Math.round(bfxVol * 100);
@@ -90,8 +90,8 @@ export class SoundScreen extends Container {
             this.app.screen.width / 2 - 300,
             this.app.screen.height / 2 + 100
         );
-        this.sfxHandle = this.createHandle(this.sfxSlider);
         soundContainer.addChild(this.sfxSlider);
+        this.sfxHandle = this.createHandle(this.sfxSlider);
 
         // First time set slider handle to let user see real val
         let sfxVol: number = parseFloat(localStorage.getItem('game_sfx_volume') || "1");
@@ -104,26 +104,59 @@ export class SoundScreen extends Container {
 
     // Create slider bar
     createSlider(x: number, y: number): Graphics {
+        const trackHeight = 10;
+
         const slider = new Graphics();
-        slider.beginFill(0x272d37);
-        slider.drawRect(0, 0, this.sliderWidth, 4);
+
+        // Invisible wider hit area for easier tapping
+        slider.beginFill(0x000000, 0.001);
+        slider.drawRect(-20, -25, this.sliderWidth + 40, 50);
         slider.endFill();
+
+        // Visible track
+        slider.beginFill(0x272d37);
+        slider.drawRoundedRect(0, -trackHeight / 2, this.sliderWidth, trackHeight, trackHeight / 2);
+        slider.endFill();
+
         slider.position.set(x, y);
+        slider.eventMode = "static";
+        slider.cursor = "pointer";
+
+        // Tap on track to jump handle to that position
+        slider.on("pointerdown", (e: any) => {
+            const localX = slider.toLocal(e.global).x;
+            const handle = slider === this.bfxSlider ? this.bfxHandle : this.sfxHandle;
+            handle.x = Math.max(0, Math.min(localX, this.sliderWidth));
+            this.onDragStart(handle, slider);
+            this.onDrag(e);
+        });
+
         return slider;
     }
 
     // Create handle
     createHandle(slider: Graphics): Graphics {
         const handle = new Graphics();
-        handle.beginFill(0xffffff);
-        handle.drawCircle(0, 0, 8);
+
+        // Invisible larger hit area for touch
+        handle.beginFill(0x000000, 0.001);
+        handle.drawCircle(0, 0, 30);
         handle.endFill();
-        handle.y = slider.height / 2;
+
+        // Visible handle
+        handle.beginFill(0xffffff);
+        handle.drawCircle(0, 0, 14);
+        handle.endFill();
+
+        handle.y = 0;
         handle.x = 0;
         handle.eventMode = "static";
         handle.cursor = "pointer";
 
-        handle.on("pointerdown", () => this.onDragStart(handle, slider))
+        handle.on("pointerdown", (e: any) => {
+            e.stopPropagation();
+            this.onDragStart(handle, slider);
+        })
             .on("pointerup", this.onDragEnd)
             .on("pointerupoutside", this.onDragEnd);
 
