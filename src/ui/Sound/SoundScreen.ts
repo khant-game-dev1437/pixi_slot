@@ -1,8 +1,10 @@
 import { Container, Graphics } from "pixi.js";
 import * as PIXI from "pixi.js";
 import { sound } from "../../utils/sound";
+import { IScreen } from "../../screens/IScreen";
 
-export class SoundScreen extends Container {
+export class SoundScreen extends Container implements IScreen {
+    public container: PIXI.Container = this; // satisfies IScreen — this class IS the container
     private app: PIXI.Application;
 
     // BFX slider
@@ -30,7 +32,7 @@ export class SoundScreen extends Container {
 
         this.createSoundUI();
     }
-
+    
     createSoundUI() {
         const soundContainer = new Container();
         this.addChild(soundContainer);
@@ -40,12 +42,13 @@ export class SoundScreen extends Container {
         const panelX = (this.app.screen.width - panelW) / 2;
         const panelY = (this.app.screen.height - panelH) / 2;
 
-        // Dim background
+        // Dim background — tap outside panel to close
         const overlay = new Graphics();
         overlay.beginFill(0x000000, 0.5);
         overlay.drawRect(0, 0, this.app.screen.width, this.app.screen.height);
         overlay.endFill();
         overlay.eventMode = "static";
+        overlay.on("pointerdown", () => { this.visible = false; });
         soundContainer.addChild(overlay);
 
         // Compact panel
@@ -210,4 +213,9 @@ export class SoundScreen extends Container {
             console.log("SFX Value:", this.sfxValue);
         }
     };
+
+
+    public show(): void { this.visible = true; }
+    public hide(): void { this.visible = false; }
+    public isVisible(): boolean { return this.visible; }
 }

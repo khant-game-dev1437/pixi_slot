@@ -17,6 +17,49 @@ const IMAGES = [
     'button_spin.png',
     'button_spin_disabled.png',
     'yellow.png',
+
+    // Neccessary assets
+    'Neccessary/background.png',
+    'Neccessary/reelFrame.png',
+    'Neccessary/win_bg.png',
+    'Neccessary/Base game.png',
+
+    // Game UI
+    'Neccessary/Game UI/Autoplay.png',
+    'Neccessary/Game UI/Balance.png',
+    'Neccessary/Game UI/Bet.png',
+    'Neccessary/Game UI/Frame.png',
+    'Neccessary/Game UI/I.png',
+    'Neccessary/Game UI/Minus.png',
+    'Neccessary/Game UI/Plus.png',
+    'Neccessary/Game UI/Spin.png',
+    'Neccessary/Game UI/Win.png',
+
+    // Desktop UI buttons
+    'Neccessary/Game UI/desktop/Arrow_L_Disabled.png',
+    'Neccessary/Game UI/desktop/Arrow_L_Hover.png',
+    'Neccessary/Game UI/desktop/Arrow_L_Idle.png',
+    'Neccessary/Game UI/desktop/Arrow_L_Pressed.png',
+    'Neccessary/Game UI/desktop/Arrow_R_Disabled.png',
+    'Neccessary/Game UI/desktop/Arrow_R_Hover.png',
+    'Neccessary/Game UI/desktop/Arrow_R_Idle.png',
+    'Neccessary/Game UI/desktop/Arrow_R_Pressed.png',
+    'Neccessary/Game UI/desktop/Balance_Text.png',
+    'Neccessary/Game UI/desktop/Bet_Text.png',
+    'Neccessary/Game UI/desktop/Frame.png',
+    'Neccessary/Game UI/desktop/Info_Disabled.png',
+    'Neccessary/Game UI/desktop/Info_Hover.png',
+    'Neccessary/Game UI/desktop/Info_Idle.png',
+    'Neccessary/Game UI/desktop/Info_Pressed.png',
+    'Neccessary/Game UI/desktop/Spin_Disabled.png',
+    'Neccessary/Game UI/desktop/Spin_Hover.png',
+    'Neccessary/Game UI/desktop/Spin_Idle.png',
+    'Neccessary/Game UI/desktop/Spin_Pressed.png',
+    'Neccessary/Game UI/desktop/Stop_Disabled.png',
+    'Neccessary/Game UI/desktop/Stop_Hover.png',
+    'Neccessary/Game UI/desktop/Stop_Idle.png',
+    'Neccessary/Game UI/desktop/Stop_Pressed.png',
+    'Neccessary/Game UI/desktop/Win_Text.png',
 ];
 
 const SPINES = [
