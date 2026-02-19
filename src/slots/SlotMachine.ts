@@ -7,14 +7,14 @@ import { Spine } from "pixi-spine";
 import gsap from 'gsap';
 
 
-const REEL_COUNT = 2;
+const REEL_COUNT = 6;
 const SYMBOLS_PER_REEL = 5;
 
 const SYMBOL_SIZE = 100;
 const REEL_HEIGHT = SYMBOL_SIZE;
 const REEL_SPACING = 10;
 let remainingSymbols = [20, 20, 20, 40];
-let runnings = [false, false, false, false];
+let runnings = [false, false, false, false, false, false];
 export enum Music{
     backgroundMucic,
     sfxMusic
@@ -30,6 +30,7 @@ const SYMBOL_TEXTURES = [
 
 export class SlotMachine {
     public container: PIXI.Container;
+    private reelsContainer: PIXI.Container;
     private reels: Reel[] = [];
     private app: PIXI.Application;
     private spinButton: PIXI.Sprite | null = null;
@@ -40,16 +41,33 @@ export class SlotMachine {
     constructor(app: PIXI.Application) {
         this.app = app;
         this.container = new PIXI.Container();
-        
-        // Center the slot machine
-        this.container.x = this.app.screen.width / 2 - ((SYMBOL_SIZE * SYMBOLS_PER_REEL) / 2);
-        this.container.y = this.app.screen.height / 2 - ((REEL_HEIGHT * REEL_COUNT + REEL_SPACING * (REEL_COUNT - 1)) / 2);
+        this.reelsContainer = new PIXI.Container();
+
+        // Center based on the background rect: origin (-20, -200), size (bgWidth, bgHeight)
+        const bgWidth = REEL_HEIGHT * REEL_COUNT + REEL_SPACING * (REEL_COUNT - 1);
+        const bgHeight = SYMBOL_SIZE * SYMBOLS_PER_REEL;
+        this.container.x = this.app.screen.width / 2 - (bgWidth / 2 - 20);
+        this.container.y = this.app.screen.height / 2 - (bgHeight / 2 - 200);
 
         this.createBackground();
 
+        // Apply mask to reelsContainer so symbols are clipped to the background area
+        const mask = new PIXI.Graphics();
+        mask.beginFill(0xffffff);
+        mask.drawRect(
+            -20,
+            -200,
+            REEL_HEIGHT * REEL_COUNT + REEL_SPACING * (REEL_COUNT - 1) + 40,
+            SYMBOL_SIZE * SYMBOLS_PER_REEL
+        );
+        mask.endFill();
+        this.reelsContainer.mask = mask;
+        this.reelsContainer.addChild(mask);
+        this.container.addChild(this.reelsContainer);
+
         this.createReels();
 
-        this.initSpineAnimations();
+        //this.initSpineAnimations();
         
     }
 
@@ -60,7 +78,7 @@ export class SlotMachine {
             background.drawRect(
                 -20,
                 -200,
-                REEL_HEIGHT * REEL_COUNT + REEL_SPACING * (REEL_COUNT - 1) + 40,
+                REEL_HEIGHT * REEL_COUNT + REEL_SPACING * (REEL_COUNT - 1),
                 SYMBOL_SIZE * SYMBOLS_PER_REEL
                 
             );
@@ -75,13 +93,13 @@ export class SlotMachine {
         for (let i = 0; i < REEL_COUNT; i++) {
             const reel = new Reel(SYMBOLS_PER_REEL, SYMBOL_SIZE);
             if (i % 2 == 0) {
-                reel.reelResult = [0, 0, 0, 0, 0, 0];
+                reel.reelResult = [0, 0, 0, 0, 0];
             } else {
                 reel.reelResult = [0, 1, 2, 3, 4];
             }
             reel.container.y = -200;
             reel.container.x = i * SYMBOL_SIZE;
-            this.container.addChild(reel.container);
+            this.reelsContainer.addChild(reel.container);
             this.reels.push(reel);
         }
     }
@@ -123,7 +141,7 @@ export class SlotMachine {
 
     public spin(): void {
         if (runnings[this.reels.length - 1]) return;
-        remainingSymbols = [13, 15, 22, 30];
+        remainingSymbols = [13, 15, 22, 26, 30, 35];
         
         // Play spin sound
         sound.playSfx('Reel spin');
@@ -220,15 +238,27 @@ export class SlotMachine {
 
     private initSpineAnimations(): void {
         try {
+            // Background rect: origin (-20, -200), matches createBackground()
+            const bgWidth = REEL_HEIGHT * REEL_COUNT + REEL_SPACING * (REEL_COUNT - 1) + 40;
+            const bgHeight = SYMBOL_SIZE * SYMBOLS_PER_REEL;
+            const bgCenterX = bgWidth / 2 - 20;
+            const bgCenterY = bgHeight / 2 - 200;
+
             const frameSpineData = AssetLoader.getSpine('base-feature-frame.json');
             if (frameSpineData) {
                 this.frameSpine = new Spine(frameSpineData.spineData);
 
-                this.frameSpine.y = (REEL_HEIGHT * REEL_COUNT + REEL_SPACING * (REEL_COUNT - 1)) / 2;
-                this.frameSpine.x = (SYMBOL_SIZE * SYMBOLS_PER_REEL) / 2;
+                // Pivot to center so width/height stretch equally from the middle
+                const bounds = this.frameSpine.getLocalBounds();
+                this.frameSpine.pivot.set(
+                    bounds.x + bounds.width / 2,
+                    bounds.y + bounds.height / 2
+                );
 
-                this.frameSpine.width = (SYMBOL_SIZE + REEL_SPACING) * SYMBOLS_PER_REEL + SYMBOL_SIZE;
-                this.frameSpine.height = (SYMBOL_SIZE + REEL_SPACING) * REEL_COUNT + SYMBOL_SIZE;
+                this.frameSpine.x = bgCenterX;
+                this.frameSpine.y = bgCenterY;
+                this.frameSpine.width = bgWidth;
+                this.frameSpine.height = bgHeight + 20;
 
                 if (this.frameSpine.state.hasAnimation('idle')) {
                     this.frameSpine.state.setAnimation(0, 'idle', true);
@@ -241,9 +271,8 @@ export class SlotMachine {
             if (winSpineData) {
                 this.winAnimation = new Spine(winSpineData.spineData);
 
-                this.winAnimation.x = (REEL_HEIGHT * REEL_COUNT + REEL_SPACING * (REEL_COUNT - 1)) / 2;
-                this.winAnimation.y = (SYMBOL_SIZE * SYMBOLS_PER_REEL) / 2;
-
+                this.winAnimation.x = bgCenterX;
+                this.winAnimation.y = bgCenterY;
                 this.winAnimation.visible = false;
 
                 this.container.addChild(this.winAnimation);
