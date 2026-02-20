@@ -4,6 +4,8 @@ import { AssetLoader } from './utils/AssetLoader';
 import { ScreenManager } from './screens/ScreenManager';
 import { ScreenLayer } from './screens/IScreen';
 import { SoundScreen } from './ui/Sound/SoundScreen';
+import { HUDScreen } from './ui/HUDScreen';
+import { ScreenNames } from './constants/ScreenNames';
 
 export class Game {
     private app: PIXI.Application;
@@ -11,6 +13,7 @@ export class Game {
     private slotMachine!: SlotMachine;
     private assetLoader: AssetLoader;
     private soundScreen!: SoundScreen;
+    private hudScreen!: HUDScreen;
 
     private static readonly DESIGN_WIDTH = 800;
     private static readonly DESIGN_HEIGHT = 1280;
@@ -66,9 +69,12 @@ export class Game {
             this.slotMachine = new SlotMachine(this.app);
             this.screenManager.addGame(this.slotMachine);
 
+            this.hudScreen = new HUDScreen(this.app);
+            this.screenManager.addGame(this.hudScreen);
+
             this.soundScreen = new SoundScreen(this.app);
-            this.screenManager.registerScreen('SoundScreen', this.soundScreen);
-            
+            this.screenManager.registerScreen(ScreenNames.SOUND_SCREEN, this.soundScreen);
+
             this.resize(); // Call this after all UI creation finished. If not, it wont be responsive
 
             this.app.ticker.add(this.update.bind(this));

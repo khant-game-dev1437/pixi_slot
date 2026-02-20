@@ -8,7 +8,7 @@ import gsap from 'gsap';
 import { IScreen } from '../screens/IScreen';
 import { SoundScreen } from '../ui/Sound/SoundScreen';
 import { ScreenManager } from '../screens/ScreenManager';
-
+import { ScreenNames } from '../constants/ScreenNames';
 
 const REEL_COUNT = 5;
 const SYMBOLS_PER_REEL = 5;
@@ -53,7 +53,7 @@ export class SlotMachine implements IScreen {
         const bgHeight = SYMBOL_SIZE * SYMBOLS_PER_REEL;
         this.container.x = this.app.screen.width / 2 - (bgWidth / 2 - 20);
         this.container.y = this.app.screen.height / 2 - 100;
-
+        this.createGameBackground();
         this.createBackground();
 
         // Apply mask to reelsContainer so symbols are clipped to the background area
@@ -69,7 +69,7 @@ export class SlotMachine implements IScreen {
         this.reelsContainer.mask = mask;
         this.reelsContainer.addChild(mask);
         this.container.addChild(this.reelsContainer);
-
+        
         this.createReels();
         this.createSpinButton();
         this.createSoundButton();
@@ -83,8 +83,8 @@ export class SlotMachine implements IScreen {
             reelFrame.anchor.set(0.5);
             reelFrame.x = (REEL_COUNT * SYMBOL_SIZE) / 2;
             reelFrame.y = -175 + (SYMBOLS_PER_REEL * SYMBOL_SIZE) / 2;
-            reelFrame.width = (SYMBOL_SIZE) * REEL_COUNT + SYMBOL_SIZE * 2;
-            reelFrame.height = SYMBOL_SIZE * SYMBOLS_PER_REEL + SYMBOL_SIZE * 4;
+            reelFrame.width = (SYMBOL_SIZE) * REEL_COUNT + SYMBOL_SIZE * 2.5;
+            reelFrame.height = SYMBOL_SIZE * SYMBOLS_PER_REEL + SYMBOL_SIZE * 3.5;
             this.container.addChild(reelFrame);
         } catch (error) {
             console.error('Error creating background:', error);
@@ -110,6 +110,16 @@ export class SlotMachine implements IScreen {
         } catch (error) {
             console.error('Error creating spin button:', error);
         }
+    }
+
+
+    createGameBackground() {
+        const bg = new PIXI.Sprite(AssetLoader.getTexture('Neccessary/background.png'))
+        bg.x = -this.container.x;
+        bg.y = -this.container.y;
+        bg.width = this.app.screen.width
+        bg.height = this.app.screen.height
+        this.container.addChild(bg);
     }
 
     private createSoundButton(): void {
@@ -160,7 +170,8 @@ export class SlotMachine implements IScreen {
     }
 
     private showSoundUI(): void {
-         ScreenManager.getInstance().show('SoundScreen')
+        console.log('sound UI open')
+         ScreenManager.getInstance().show(ScreenNames.SOUND_SCREEN)
     }
 
     private createReels(): void {
@@ -202,7 +213,6 @@ export class SlotMachine implements IScreen {
                         let resultCount: number = r.resultCount;
 
                         if (resultCount < result.length) {
-                            console.log('result j ', resultCount);
                             const textureName: string = SYMBOL_TEXTURES[result[result.length - 1 - resultCount]];
                             s.texture = PIXI.Texture.from(`assets/images/${textureName}`);
                             r.resultCount++;
